@@ -1,0 +1,68 @@
+{
+  "_comment": "S-4 / 7.1 recipe_shakshuka.json. rescued_item_ids reference pantry_state_demo.json. Ranking rationale follows BE-14's stated order: safety-critical first, then most at-risk items rescued, then fewest missing ingredients, then simplest prep.",
+  "name": "Shakshuka",
+  "rescued_item_ids": [
+    "itm_tomatoes_006",
+    "itm_eggs_007",
+    "itm_spinach_003"
+  ],
+  "rescue_count": 3,
+  "missing_ingredients": [
+    {
+      "name": "Feta Cheese",
+      "missing": true
+    }
+  ],
+  "missing_count": 1,
+  "ingredients": [
+    {
+      "name": "Canned Tomatoes",
+      "quantity": 4.0,
+      "unit": "can",
+      "pantry_item_id": "itm_tomatoes_006",
+      "missing": false
+    },
+    {
+      "name": "Free Range Eggs",
+      "quantity": 4.0,
+      "unit": "eggs",
+      "pantry_item_id": "itm_eggs_007",
+      "missing": false
+    },
+    {
+      "name": "Baby Spinach",
+      "quantity": 100.0,
+      "unit": "g",
+      "pantry_item_id": "itm_spinach_003",
+      "missing": false
+    },
+    {
+      "name": "Onion",
+      "quantity": 1.0,
+      "unit": "whole",
+      "missing": false
+    },
+    {
+      "name": "Garlic",
+      "quantity": 2.0,
+      "unit": "cloves",
+      "missing": false
+    },
+    {
+      "name": "Feta Cheese",
+      "quantity": 50.0,
+      "unit": "g",
+      "missing": true
+    }
+  ],
+  "instructions": [
+    "Saute diced onion and garlic until soft.",
+    "Add canned tomatoes and simmer 10 minutes.",
+    "Stir in chopped spinach until wilted.",
+    "Make wells in the sauce and crack in the eggs.",
+    "Cover and cook until whites set, 5-6 minutes.",
+    "Crumble feta over the top if you have it, and serve."
+  ],
+  "preparation_minutes": 25,
+  "ranking_rationale": "No candidate rescued item is high_risk, so safety does not gate the ranking. Shakshuka rescues 3 of the pantry's at-risk items (sealed tomatoes nearing donation-eligible age, depleting eggs, low-confidence spinach with a day left) against only 1 missing ingredient, and a 25-minute one-pan prep — the best rescue-to-gap ratio among candidates considered."
+}

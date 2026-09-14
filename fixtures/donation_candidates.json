@@ -1,0 +1,33 @@
+{
+  "_comment": "S-4 / 7.1 donation_candidates.json. Two eligible sealed pantry items, and one deliberate rejection demonstrating that donation eligibility is stricter than personal-consumption advice: Sliced Turkey is use_by + high_risk, so it is excluded even though it is sealed. item_id values match pantry_state_demo.json.",
+  "anchor_date": "2026-08-26",
+  "items": [
+    {
+      "item_id": "itm_tomatoes_006",
+      "name": "Canned Tomatoes",
+      "eligible": true,
+      "reason": "Sealed, best_by 8 months out, safe pantry category.",
+      "quantity": 4.0,
+      "unit": "can",
+      "expiry_date": "2027-04-26"
+    },
+    {
+      "item_id": "itm_blackbeans_023",
+      "name": "Canned Black Beans",
+      "eligible": true,
+      "reason": "Sealed, best_by well over a year out, safe pantry category.",
+      "quantity": 6.0,
+      "unit": "can",
+      "expiry_date": "2028-02-26"
+    },
+    {
+      "item_id": "itm_turkey_002",
+      "name": "Sliced Turkey",
+      "eligible": false,
+      "reason": "Rejected: use_by item flagged high_risk. Donation eligibility is stricter than personal-consumption advice, never looser — an item ExpiryAgent would warn the household about cannot be offered to a stranger, sealed or not.",
+      "quantity": 200.0,
+      "unit": "g",
+      "expiry_date": "2026-08-27"
+    }
+  ]
+}

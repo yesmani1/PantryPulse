@@ -1,0 +1,159 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: PantryPulse single UAT/demo environment. No DynamoDB tables are created here.
+
+Parameters:
+  ArtifactBucket:
+    Type: String
+    Description: S3 bucket containing the packaged Lambda zip.
+  ArtifactKey:
+    Type: String
+    Description: S3 key for the packaged Lambda zip.
+  TelegramTokenParameterArn:
+    Type: String
+    Description: ARN of a SecureString SSM parameter containing only the Telegram bot token.
+  TelegramWebhookSecretParameterArn:
+    Type: String
+    Description: ARN of a SecureString SSM parameter containing the Telegram webhook secret.
+  BedrockTextModel:
+    Type: String
+    Default: us.anthropic.claude-sonnet-4-6
+  BedrockVisionModel:
+    Type: String
+    Default: us.anthropic.claude-haiku-4-5-20251001-v1:0
+
+Resources:
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: pantrypulse-uat-lambda-role
+      Tags:
+        - Key: Project
+          Value: pantrypulse
+        - Key: Environment
+          Value: uat
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: pantrypulse-uat-runtime
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: [logs:CreateLogStream, logs:PutLogEvents]
+                Resource: !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/pantrypulse-uat-bot:*
+              - Effect: Allow
+                Action: [dynamodb:TransactWriteItems, dynamodb:Query, dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:DeleteItem]
+                Resource:
+                  - !Sub arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pantrypulse-uat-pantry-items
+                  - !Sub arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pantrypulse-uat-households
+                  - !Sub arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pantrypulse-uat-feedback-log
+              - Effect: Allow
+                # Converse authorizes against the selected inference profile via
+                # InvokeModel; both actions are required for vision and text.
+                Action: [bedrock:Converse, bedrock:InvokeModel, bedrock:InvokeModelWithResponseStream]
+                Resource: '*'
+              - Effect: Allow
+                Action: [ssm:GetParameter]
+                Resource: [!Ref TelegramTokenParameterArn, !Ref TelegramWebhookSecretParameterArn]
+
+  BotLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/pantrypulse-uat-bot
+      RetentionInDays: 14
+      Tags:
+        - Key: Project
+          Value: pantrypulse
+        - Key: Environment
+          Value: uat
+
+  BotFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: pantrypulse-uat-bot
+      Runtime: python3.12
+      Handler: pantrypulse.interface.lambda_handler.handler
+      Role: !GetAtt ExecutionRole.Arn
+      Code: { S3Bucket: !Ref ArtifactBucket, S3Key: !Ref ArtifactKey }
+      MemorySize: 1024
+      Timeout: 120
+      Environment:
+        Variables:
+          MODEL_PROVIDER: bedrock
+          BEDROCK_REGION: !Ref AWS::Region
+          BEDROCK_TEXT_MODEL: !Ref BedrockTextModel
+          BEDROCK_VISION_MODEL: !Ref BedrockVisionModel
+          TELEGRAM_TOKEN_PARAMETER_ARN: !Ref TelegramTokenParameterArn
+          TELEGRAM_WEBHOOK_SECRET_PARAMETER_ARN: !Ref TelegramWebhookSecretParameterArn
+      Tags:
+        - Key: Project
+          Value: pantrypulse
+        - Key: Environment
+          Value: uat
+
+  DailyRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: pantrypulse-uat-daily
+      State: DISABLED
+      ScheduleExpression: cron(0 17 * * ? *)
+      Targets:
+        - Arn: !GetAtt BotFunction.Arn
+          Id: PantryPulseDaily
+          Input: '{"source":"pantrypulse.schedule","action":"daily_check"}'
+
+  DailyPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref BotFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt DailyRule.Arn
+
+  WebhookApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: pantrypulse-uat-webhook
+      ProtocolType: HTTP
+      Tags: { Project: pantrypulse, Environment: uat }
+
+  WebhookIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebhookApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BotFunction.Arn}/invocations
+      PayloadFormatVersion: '2.0'
+
+  WebhookRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebhookApi
+      RouteKey: POST /telegram
+      Target: !Join ['/', ['integrations', !Ref WebhookIntegration]]
+
+  WebhookStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref WebhookApi
+      StageName: '$default'
+      AutoDeploy: true
+      Tags: { Project: pantrypulse, Environment: uat }
+
+  WebhookPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref BotFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebhookApi}/*/POST/telegram
+
+Outputs:
+  LambdaName: { Value: !Ref BotFunction }
+  LambdaRoleArn: { Value: !GetAtt ExecutionRole.Arn }
+  ScheduleName: { Value: !Ref DailyRule }
+  WebhookUrl: { Value: !Sub "https://${WebhookApi}.execute-api.${AWS::Region}.amazonaws.com/telegram" }

@@ -1,0 +1,58 @@
+{
+  "_comment": "S-4 / 7.1 expiry_risks_mixed.json. The four required contrasts: Best By passed (reassure), Use By tomorrow (firm), Sell By passed (suppressed regardless), estimated low-confidence (flagged). item_id values match pantry_state_demo.json.",
+  "anchor_date": "2026-08-26",
+  "items": [
+    {
+      "item_id": "itm_yogurt_001",
+      "name": "Greek Yogurt",
+      "date_type": "best_by",
+      "expiry_date": "2026-08-24",
+      "expiry_source": "ocr",
+      "confidence": 0.93,
+      "high_risk": false,
+      "risk_level": "low",
+      "days_from_expiry": -2,
+      "guidance": "Still good to eat — Best Before is a quality date, not a safety date.",
+      "explanation": "2 days past best_by. Quality may have softened slightly; there is no safety concern. Reassure, and suggest a rescue recipe."
+    },
+    {
+      "item_id": "itm_turkey_002",
+      "name": "Sliced Turkey",
+      "date_type": "use_by",
+      "expiry_date": "2026-08-27",
+      "expiry_source": "ocr",
+      "confidence": 0.91,
+      "high_risk": true,
+      "risk_level": "high",
+      "days_from_expiry": 1,
+      "guidance": "Use today or tomorrow, or discard. Do not rely on smell alone.",
+      "explanation": "Use By tomorrow on a high_risk deli item. Firm warning, no reassurance framing, and not eligible for donation."
+    },
+    {
+      "item_id": "itm_milk_004",
+      "name": "Whole Milk",
+      "date_type": "sell_by",
+      "expiry_date": "2026-08-23",
+      "expiry_source": "gs1_barcode",
+      "confidence": 1.0,
+      "high_risk": false,
+      "risk_level": "none",
+      "days_from_expiry": -3,
+      "guidance": "No action needed. This date is for store restocking, not you.",
+      "explanation": "Sell By is a retailer rotation date, not a consumer deadline. Suppressed from alerts entirely regardless of how many days have passed."
+    },
+    {
+      "item_id": "itm_spinach_003",
+      "name": "Baby Spinach",
+      "date_type": "estimated",
+      "expiry_date": "2026-08-27",
+      "expiry_source": "shelf_life_table",
+      "confidence": 0.35,
+      "high_risk": false,
+      "risk_level": "medium",
+      "days_from_expiry": 1,
+      "guidance": "Check for wilting or sliminess before using — this date is our best guess, not a read label.",
+      "explanation": "No printed date was read; this is inferred from category shelf life at low confidence. Flagged visibly as an estimate."
+    }
+  ]
+}

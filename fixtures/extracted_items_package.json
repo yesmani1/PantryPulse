@@ -1,0 +1,60 @@
+{
+  "_comment": "S-4 / 7.1 extracted_items_package.json. 4-item mock output of analyze_grocery_image(mode=package). Sparkling Water is the required GS1 hit: expiry_source=gs1_barcode with gtin/lot_number populated from a parsed AI 01/10/17 payload, deterministic confidence 1.0 versus the OCR/estimated confidence scores below it.",
+  "anchor_date": "2026-08-26",
+  "items": [
+    {
+      "name": "Sparkling Water",
+      "category": "pantry",
+      "quantity": 1.0,
+      "unit": "bottle",
+      "purchase_date": "2026-08-26",
+      "expiry_date": "2027-02-26",
+      "date_type": "best_by",
+      "expiry_source": "gs1_barcode",
+      "confidence": 1.0,
+      "sealed": true,
+      "label_text": null,
+      "gtin": "05012223334445",
+      "lot_number": "L88213"
+    },
+    {
+      "name": "Protein Bar",
+      "category": "pantry",
+      "quantity": 1.0,
+      "unit": "bar",
+      "purchase_date": "2026-08-26",
+      "expiry_date": "2026-12-24",
+      "date_type": "best_by",
+      "expiry_source": "ocr",
+      "confidence": 0.82,
+      "sealed": true,
+      "label_text": "BEST BEFORE DEC 2026"
+    },
+    {
+      "name": "Yogurt Drink",
+      "category": "dairy",
+      "quantity": 1.0,
+      "unit": "bottle",
+      "purchase_date": "2026-08-26",
+      "expiry_date": "2026-09-04",
+      "date_type": "use_by",
+      "expiry_source": "ocr",
+      "confidence": 0.78,
+      "sealed": true,
+      "label_text": "USE BY 09/04"
+    },
+    {
+      "name": "Trail Mix",
+      "category": "pantry",
+      "quantity": 1.0,
+      "unit": "bag",
+      "purchase_date": "2026-08-26",
+      "expiry_date": null,
+      "date_type": "estimated",
+      "expiry_source": "shelf_life_table",
+      "confidence": 0.45,
+      "sealed": true,
+      "label_text": null
+    }
+  ]
+}

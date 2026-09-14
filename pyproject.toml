@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pantrypulse"
+version = "0.1.0"
+description = "Autonomous household agent that reduces food waste."
+requires-python = ">=3.11"
+
+# Runtime deps are pinned in requirements.txt, which installs this package with -e .
+# Kept empty here on purpose so there is one place to look for versions.
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

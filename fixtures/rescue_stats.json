@@ -1,0 +1,19 @@
+{
+  "_comment": "S-4 / 7.1 rescue_stats.json. Two consecutive months showing tossed count declining as rescued count rises -- the shape get_rescue_stats() is meant to produce once real feedback events accumulate (BE-22).",
+  "items": [
+    {
+      "household_id": "hh_demo_001",
+      "period": "2026-07",
+      "rescued_count": 9,
+      "tossed_count": 14,
+      "estimated_value_saved": 27.5
+    },
+    {
+      "household_id": "hh_demo_001",
+      "period": "2026-08",
+      "rescued_count": 16,
+      "tossed_count": 7,
+      "estimated_value_saved": 48.25
+    }
+  ]
+}
